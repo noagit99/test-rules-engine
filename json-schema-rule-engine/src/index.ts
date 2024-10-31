@@ -1,13 +1,15 @@
 // src/index.ts
-import { promptUser } from '../src/cli'
+import { promptUser } from './cli'; // Ensure correct path to cli.ts
 
 const start = async () => {
-  await promptUser();
+  try {
+    await promptUser();
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
 };
 
-start().catch((error) => {
-  console.error('An error occurred:', error);
-});
+start();
 
 
 
