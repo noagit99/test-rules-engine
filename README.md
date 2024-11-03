@@ -28,17 +28,49 @@ A flexible rule engine for validating JSON documents with custom rules and datab
    - Tests rule logic
 
 ### Document Validation Example
+
 ```typescript
-const validateDocument = (document: object): string[] => {
-  const valid = validate(document);
-  if (!valid) {
-    return validate.errors?.map(error => 
-      `${error.instancePath} ${error.message}`
-    ) || [];
-  }
-  return [];
+// Sample invoice document
+const sampleInvoice = {
+  id: "550e8400-e29b-41d4-a716-446655440000",
+  date: "2024-03-20",
+  total_amount: 1500.50,
+  customer: {
+    name: "Acme Corp",
+    email: "billing@acme.com"
+  },
+  line_items: [
+    {
+      product: "Widget A",
+      quantity: 5,
+      price: 200.00
+    },
+    {
+      product: "Widget B",
+      quantity: 3,
+      price: 166.83
+    }
+  ]
 };
+
+// Validation examples
+✅ Valid invoice:
+validateDocument(sampleInvoice)
+// Result: [] (empty array means no errors)
+
+❌ Invalid invoice:
+validateDocument({
+  id: "invalid-uuid",  // Invalid UUID format
+  date: "2024/03/20",  // Invalid date format
+  total_amount: -100   // Negative amount not allowed
+})
+// Result: [
+//   "/id must match format \"uuid\"",
+//   "/date must match format \"date\"",
+//   "/total_amount must be >= 0"
+// ]
 ```
+
 
 ## 📋  Rules System
 
