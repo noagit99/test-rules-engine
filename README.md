@@ -6,25 +6,41 @@ A flexible rule engine for validating JSON documents with custom rules and datab
 
 - **TypeScript** - Main programming language
 - **Node.js** - Runtime environment
-- **PostgreSQL** - Database for rule persistence
-  - Leverages JSONB data type for flexible rule storage
-  - Provides robust querying capabilities for rules
+- **MongoDB** - Database for rule persistence
 - **UUID** - For unique rule identification
+- **AJV (Another JSON Validator)** - JSON Schema validation
+  - Custom formats for UUID and dates
+  - Strict type checking
+  - Error reporting
+- **JSON Schema** - Schema definition and validation
 
-## 📋 Schema and Rules System
 
-### Database Schema
-```sql
-CREATE TABLE rules (
-    id UUID PRIMARY KEY,
-    field VARCHAR(255) NOT NULL,
-    condition VARCHAR(2) NOT NULL,
-    value TEXT NOT NULL,
-    is_valid BOOLEAN DEFAULT true
-);
+### Validation Process Flow
+1. **Schema Validation (AJV)**
+   - Validates document structure
+   - Checks data types
+   - Enforces format rules
+2. **Rule Validation**
+   - Validates field existence
+   - Checks operator validity
+   - Tests rule logic
+
+### Document Validation Example
+```typescript
+const validateDocument = (document: object): string[] => {
+  const valid = validate(document);
+  if (!valid) {
+    return validate.errors?.map(error => 
+      `${error.instancePath} ${error.message}`
+    ) || [];
+  }
+  return [];
+};
 ```
 
-### Rule Structure
+## 📋  Rules System
+
+### Basic Rule Structure
 ```typescript
 interface Rule {
   id: string;
@@ -48,16 +64,16 @@ interface Rule {
 2. **Field Path Support**
    - Supports nested field access (e.g., `customer.address.city`)
    - Validates field existence before rule creation
-
 ## 🔧 Implementation Details
 
 ### Rule Validation Process
 1. User inputs a rule in format: `field operator value`
 2. System validates:
-   - Field existence in the document
+   - Document passes JSON Schema validation
+   - Field exists in the validated document
    - Operator validity
    - Rule logic against sample data
-3. If validation passes, rule is stored in PostgreSQL
+3. If all validations pass, rule is stored in PostgreSQL
 
 ### Database Implementation
 - Rules are stored with unique UUIDs
@@ -87,3 +103,4 @@ Add a rule (field operator value) or type "done" to finish: total_amount > 100
 3. Each rule is validated against the sample invoice
 4. Valid rules are saved to PostgreSQL
 5. Final validation runs against all rules
+
