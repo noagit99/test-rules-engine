@@ -19,7 +19,7 @@ A flexible rule engine for validating JSON documents with custom rules and datab
 
 ### Validation Process Flow
 1. **Schema Validation (AJV)**
-   - Validates document(json or in our case invoice) structure
+   - Validates document( json or in our case invoice ) structure
    - Checks data types
    - Enforces format rules
 2. **Rule Validation**
