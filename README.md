@@ -6,8 +6,8 @@ A flexible rule engine for validating JSON documents with custom rules and datab
 
 - **TypeScript** - Main programming language
 - **Node.js** - Runtime environment
-- - **JSON Schema** - Schema definition and validation
-- - **AJV (Another JSON Validator)** - JSON Schema validation
+-  **JSON Schema** - Schema definition and validation
+-  **AJV (Another JSON Validator)** - JSON Schema validation
   - Custom formats for UUID and dates
   - Strict type checking
   - Error reporting
