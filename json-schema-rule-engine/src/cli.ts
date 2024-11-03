@@ -42,6 +42,21 @@ export const promptUser = async (): Promise<void> => {
   rl.close();
 };
 
+// Function to validate and add a rule
+const addRuleWithValidation = async (rule: Rule, invoice: any, rules: Rule[]): Promise<void> => {
+  // Test the rule against the invoice before saving
+  const testErrors = applyRules(invoice, [...rules, rule]);
+  if (testErrors.length > 0) {
+    console.log('❌ Validation failed for the following reasons:');
+    testErrors.forEach(error => console.log(`  - ${error}`));
+    throw new Error('Rule validation failed. Please check the validation errors above.');
+  }
+  
+  console.log('✅ Rule validation passed');
+  await saveRule(rule);
+  console.log('✅ Rule saved to database');
+};
+
 // Function to prompt user to add rules
 const addRules = async (rules: Rule[]): Promise<void> => {
   return new Promise((resolve) => {
@@ -52,7 +67,9 @@ const addRules = async (rules: Rule[]): Promise<void> => {
           return;
         }
 
-        const [field, operatorInput, value] = ruleInput.split(' ');
+        const [field, operatorInput, ...valueParts] = ruleInput.split(' ');
+        const value = valueParts.join(' ').replace(/['";]/g, '');
+        
         const validOperators: Rule['condition'][] = ["==", "!=", ">", "<", ">=", "<="];
         if (!validOperators.includes(operatorInput as Rule['condition'])) {
           console.log('Invalid operator. Please use: ==, !=, >, <, >=, or <=');
@@ -60,19 +77,33 @@ const addRules = async (rules: Rule[]): Promise<void> => {
           return;
         }
 
+        // Check if field exists in invoice
+        const invoice = readSampleInvoice();
+        const fieldValue = getFieldValue(invoice, field);
+        
+        if (fieldValue === undefined) {
+          console.log(`Field "${field}" does not exist in the invoice`);
+          askForRule();
+          return;
+        }
+
         const operator = operatorInput as Rule['condition'];
         const id = uuidv4();
-        const rule: Rule = { id, field, condition: operator, value };
-        rules.push(rule);
+        const rule: Rule = { 
+          id, 
+          field, 
+          condition: operator, 
+          value,
+          isValid: true
+        };
 
         try {
-          // Save the rule with the UUID
-          const dbRule: DBRule = { id, field, condition: operator, value };
-          await saveRule(dbRule);
-          console.log(`Rule added: ${JSON.stringify(rule)}`);
-          console.log('Current rules:', rules);
+          await addRuleWithValidation(rule, invoice, rules);
+          console.log('✅ Rule added successfully:', JSON.stringify(rule, null, 2));
+          rules.push(rule);
+          console.log('📋 Current rules:', JSON.stringify(rules, null, 2));
         } catch (error) {
-          console.error('Failed to save rule:', error instanceof Error ? error.message : String(error));
+          console.error('❌ Failed to save rule:', error instanceof Error ? error.message : String(error));
         }
 
         askForRule();
@@ -81,6 +112,11 @@ const addRules = async (rules: Rule[]): Promise<void> => {
 
     askForRule();
   });
+};
+
+// Helper function to get nested field value
+const getFieldValue = (obj: any, path: string): any => {
+  return path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 };
 
 // Start the prompt
