@@ -27,7 +27,7 @@ A flexible rule engine for validating JSON documents with custom rules and datab
    - Checks operator validity
    - Tests rule logic
 
-### Document Validation Example
+### Invoice Validation Example
 
 ```typescript
 // Sample invoice document
