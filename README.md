@@ -29,7 +29,41 @@ A flexible rule engine for validating JSON documents with custom rules and datab
 
 ### Invoice Validation Example
 
+### JSON Schema Validation Example
+
 ```typescript
+// JSON Schema for Invoice
+const invoiceSchema = {
+  $schema: "http://json-schema.org/draft-07/schema#",
+  type: "object",
+  required: ["id", "date", "total_amount", "customer"],
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      description: "Unique identifier for the invoice"
+    },
+    date: {
+      type: "string",
+      format: "date",
+      description: "Invoice creation date"
+    },
+    total_amount: {
+      type: "number",
+      minimum: 0,
+      description: "Total amount of the invoice"
+    },
+    customer: {
+      type: "object",
+      required: ["name", "email"],
+      properties: {
+        name: { type: "string", minLength: 1 },
+        email: { type: "string", format: "email" }
+      }
+    }
+  }
+};
+
 // Sample invoice document
 const sampleInvoice = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -38,19 +72,7 @@ const sampleInvoice = {
   customer: {
     name: "Acme Corp",
     email: "billing@acme.com"
-  },
-  line_items: [
-    {
-      product: "Widget A",
-      quantity: 5,
-      price: 200.00
-    },
-    {
-      product: "Widget B",
-      quantity: 3,
-      price: 166.83
-    }
-  ]
+  }
 };
 
 // Validation examples
@@ -58,31 +80,22 @@ const sampleInvoice = {
 validateDocument(sampleInvoice)
 // Result: [] (empty array means no errors)
 
-❌ Invalid invoice:
+❌ Schema validation errors:
 validateDocument({
-  id: "invalid-uuid",  // Invalid UUID format
-  date: "2024/03/20",  // Invalid date format
-  total_amount: -100   // Negative amount not allowed
+  id: "invalid-uuid",
+  date: "2024-03-20",
+  customer: {
+    name: "",  // minLength violation
+    // email missing
+  }
+  // total_amount missing
 })
 // Result: [
 //   "/id must match format \"uuid\"",
-//   "/date must match format \"date\"",
-//   "/total_amount must be >= 0"
+//   "must have required property 'total_amount'",
+//   "/customer/name must NOT have fewer than 1 characters",
+//   "/customer must have required property 'email'"
 // ]
-```
-
-
-## 📋  Rules System
-
-### Basic Rule Structure
-```typescript
-interface Rule {
-  id: string;
-  field: string;
-  condition: "==" | "!=" | ">" | "<" | ">=" | "<=";
-  value: string;
-  isValid: boolean;
-}
 ```
 
 ### Types of Rules Supported
