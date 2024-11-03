@@ -6,7 +6,9 @@ A flexible rule engine for validating JSON documents with custom rules and datab
 
 - **TypeScript** - Main programming language
 - **Node.js** - Runtime environment
-- **MongoDB** - Database for rule persistence
+ **PostgreSQL** - Database for rule persistence
+  - Leverages JSONB data type for flexible rule storage
+  - Provides robust querying capabilities for rules
 - **UUID** - For unique rule identification
 - **AJV (Another JSON Validator)** - JSON Schema validation
   - Custom formats for UUID and dates
