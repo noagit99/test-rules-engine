@@ -14,7 +14,7 @@ const createRulesTable = async () => {
   try {
     await db.none(`
       CREATE TABLE IF NOT EXISTS rules (
-        id SERIAL PRIMARY KEY,
+        id UUID PRIMARY KEY,
         field VARCHAR(255),
         condition VARCHAR(10),
         value TEXT
