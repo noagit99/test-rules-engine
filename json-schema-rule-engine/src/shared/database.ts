@@ -9,23 +9,32 @@ const db = pgp({
   password: 'password',
 });
 
-
-const createRulesTable = async () => {
+export const initializeDatabase = async () => {
   try {
+    // First verify connection
+    await db.one('SELECT 1');
+    console.log('✅ Database connection successful');
+
+    // Create schemas table if it doesn't exist
     await db.none(`
-      CREATE TABLE IF NOT EXISTS rules (
-        id UUID PRIMARY KEY,
-        field VARCHAR(255),
-        condition VARCHAR(10),
-        value TEXT
-      )
+      CREATE TABLE IF NOT EXISTS schemas (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) UNIQUE NOT NULL,
+        content JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
-    console.log("Rules table created successfully.");
+    console.log('✅ Schemas table initialized');
+
+    return true;
   } catch (error) {
-    console.error('Error creating table:', error);
+    console.error('❌ Database initialization error:', error);
+    throw error;
   }
 };
 
-createRulesTable();
+// Initialize database when this module is imported
+initializeDatabase().catch(console.error);
 
 export { db };

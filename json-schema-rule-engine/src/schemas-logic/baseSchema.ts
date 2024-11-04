@@ -1,3 +1,26 @@
+import { OPTIONAL_FIELDS } from '../shared/fields';
+
+// Filter out optional fields from required array
+const requiredFields = [
+  "externalTransactionId",
+  "invoiceNumber",
+  "issueDate",
+  "dueDate",
+  "terms",
+  "description",
+  "invoiceType",
+  "paymentPeriodStart",
+  "paymentPeriodEnd",
+  "paymentPeriod",
+  "externalStatus",
+  "billingCurrency",
+  "totals",
+  "receivable",
+  "payable",
+  "line_items",
+  "files"
+].filter(field => !OPTIONAL_FIELDS.includes(field));
+
 export const invoiceSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   type: 'object',
@@ -218,24 +241,5 @@ export const invoiceSchema = {
       required: ["invoice", "additionalFiles"]
     }
   },
-  required: [
-    "externalTransactionId",
-    "invoiceNumber",
-    "issueDate",
-    "dueDate",
-    "terms",
-    "description",
-    "invoiceType",
-    "paymentPeriodStart",
-    "paymentPeriodEnd",
-    "paymentPeriod",
-    "externalStatus",
-    "billingCurrency",
-    "purchaseOrderNumber",
-    "totals",
-    "receivable",
-    "payable",
-    "line_items",
-    "files"
-  ]
+  required: requiredFields
 };
