@@ -150,4 +150,3 @@ Add a rule (field operator value) or type "done" to finish: total_amount > 100
 3. Each rule is validated against the sample invoice
 4. Valid rules are saved to PostgreSQL
 5. Final validation runs against all rules
-
